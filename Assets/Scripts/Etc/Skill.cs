@@ -21,6 +21,8 @@ public class Skill : MonoBehaviour
 
     public void UseSkill()
     {
+        if (GameManager.Instance.isDie) { return; }
+
         if (isCooldown)
         {
             StopCoroutine(OnCooldownText());

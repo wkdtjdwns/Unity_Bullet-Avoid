@@ -6,7 +6,6 @@ public class Player : MonoBehaviour
 {
     [Header("Player Info")]
     public float speed;
-    public int life;
     public bool isBarrier;
     [SerializeField] private bool isTop;
     [SerializeField] private bool isLeft;
@@ -15,11 +14,11 @@ public class Player : MonoBehaviour
 
     [Header("Other")]
     public GameObject barrierObj;
+    public GameObject diePaticle;
 
     private void Awake()
     {
         speed = 10;
-        life = 3;
     }
 
     private void Update()
@@ -29,6 +28,8 @@ public class Player : MonoBehaviour
 
     private void Move()
     {
+        if (GameManager.Instance.isDie) { return; }
+
         float h = Input.GetAxisRaw("Horizontal");
         if ((isRight && h == 1) || (isLeft && h == -1)) { h = 0; }
 
