@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -8,24 +9,121 @@ public class GameManager : MonoBehaviour
 
     // 점수 넣기
     [Header("Game Info")]
-    public int score;
+    public float score;
     public int life;
+    public int maxLife;
+    public Image[] lifeImage;
+    public bool isHit;
     public bool isDie;
+    public bool isOption;
+
+    [Header("Other")]
+    [SerializeField] private SpriteRenderer background;
+    [SerializeField] private GameObject optionObj;
+    [SerializeField] private GameObject resultObj;
 
     private void Awake()
     {
         Instance = this;
 
         score = 0;
-        life = 5;
+        maxLife = 5;
+        life = maxLife;
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(1)) OnDie();
+        if (!isDie) { score += Time.deltaTime; }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Option();
+        }
+
+        CheatKey();
     }
 
-    // 데스씬
+    public void Option()
+    {
+        isOption = !isOption;
+        optionObj.SetActive(isOption);
+        Time.timeScale = isOption ? 0 : 1;
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
+    }
+
+    public IEnumerator OnHit()
+    {
+        if (life > 1)
+        {
+            isHit = true;
+
+            SoundManager.Instance.PlaySound("Hit");
+            UpdateLifeIcon(--life);
+            SetBgm();
+
+            StopCoroutine(CameraShiver());
+            StartCoroutine(CameraShiver());
+
+            background.color = new Color(1, 0, 0);
+
+            yield return new WaitForSeconds(0.1f);
+
+            background.color = new Color(1, 1, 1);
+
+            yield return new WaitForSeconds(0.25f);
+            isHit = false;
+        }
+
+        else
+        {
+            UpdateLifeIcon(--life);
+            SetBgm();
+
+            OnDie();
+        }
+    }
+
+    private void SetBgm()
+    {
+        if (life >= 5) { SoundManager.Instance.PlayBgm("Bgm 1"); }
+        else if (life >= 3) { SoundManager.Instance.PlayBgm("Bgm 2"); }
+        else if (life >= 1) { SoundManager.Instance.PlayBgm("Bgm 3"); }
+        else { SoundManager.Instance.PlayBgm("Null"); }
+    }
+
+    private IEnumerator CameraShiver()
+    {
+        Camera camera = Camera.main;
+        for (int i = 0; i < 10; i++)
+        {
+            float x = (i % 2 == 0) ? -1 : 1;
+
+            Vector3 dir = new Vector3(x, 0, 0);
+
+            camera.transform.position += dir;
+
+            yield return new WaitForSeconds(0.01f);
+        }
+    }
+
+    private void UpdateLifeIcon(int life)
+    {
+        for (int i = maxLife - 1; i >= 0; i--)
+        {
+            lifeImage[i].color = new Color(1, 1, 1, 0);
+        }
+
+        for (int i = life - 1; i >= 0; i--)
+        {
+            lifeImage[i].color = new Color(1, 1, 1, 1);
+        }
+    }
+
+    // Death Scene
     private void OnDie()
     {
         isDie = true;
@@ -43,7 +141,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator CameraCloseUp()
     {
         float size = Camera.main.orthographicSize;
-        while (size > 1)
+        while (size > 1.25f)
         {
             size -= 0.1f;
             Camera.main.orthographicSize = size;
@@ -61,13 +159,10 @@ public class GameManager : MonoBehaviour
         GameObject player = GameObject.Find("Player").gameObject;
         SpriteRenderer spriteRenderer =  player.GetComponent<SpriteRenderer>();
 
-        float alpha = 1f;
         for (int i = 0; i < 10; i++)
         {
-            if (i % 2 == 0) { alpha = 0.5f; }
-            else { alpha = 1f; }
-
-            spriteRenderer.color = new Color(255, 0, 0, alpha);
+            if (i % 2 == 0) { spriteRenderer.color = new Color(1, 0, 0); SoundManager.Instance.PlaySound("Dying"); }
+            else { spriteRenderer.color = new Color(1, 1, 1); }
 
             yield return new WaitForSeconds(0.3f);
         }
@@ -82,7 +177,24 @@ public class GameManager : MonoBehaviour
         Player player = GameObject.Find("Player").gameObject.GetComponent<Player>();
         SpriteRenderer spriteRenderer = player.GetComponent<SpriteRenderer>();
 
+        SoundManager.Instance.PlaySound("Die");
         spriteRenderer.color = new Color(0, 0, 0, 0);
         player.diePaticle.SetActive(true);
+
+        Invoke("ShowResult", 2f);
+    }
+
+    private void ShowResult()
+    {
+        SoundManager.Instance.PlaySound("Result");
+        resultObj.SetActive(true);
+    }
+
+    private void CheatKey()
+    {
+        if (Input.GetKeyDown(KeyCode.F2))
+        {
+            StartCoroutine(OnHit());
+        }
     }
 }

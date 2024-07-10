@@ -20,7 +20,7 @@ public class PatternManager : MonoBehaviour
 
     private void Update()
     {
-        
+        if (GameManager.Instance.isDie) { StopAllCoroutines(); }
     }
 
     private void PatternThink()
@@ -51,8 +51,7 @@ public class PatternManager : MonoBehaviour
                 meteorSpeed = 5f;
                 bulletSpeed = 15;
                 patterns[patternIndex].curPatternCount = 0;
-                patterns[patternIndex].maxPatternCounts = 3;
-                //patterns[patternIndex].maxPatternCounts = Random.Range(3, 6);
+                patterns[patternIndex].maxPatternCounts = Random.Range(3, 6);
 
                 MeteorPattern();
                 break;
@@ -65,12 +64,14 @@ public class PatternManager : MonoBehaviour
     {
         if (GameManager.Instance.isDie) { return; }
 
+        SoundManager.Instance.PlaySound("Shot");
         for (int i = 0; i < patterns[patternIndex].bulletPositions.Length; i++)
         {
             if (i % 2 == 0)
             {
                 GameObject bullet = Instantiate(patterns[patternIndex].bulletPrefab, patterns[patternIndex].bulletPositions[i]);
                 bullet.transform.position += Vector3.right * ((patterns[patternIndex].curPatternCount - 1) * 1f);
+                bullet.transform.Rotate(0, 0, 270);
                 Rigidbody2D rigid = bullet.GetComponent<Rigidbody2D>();
 
                 rigid.AddForce(Vector2.down * bulletSpeed, ForceMode2D.Impulse);
@@ -94,12 +95,12 @@ public class PatternManager : MonoBehaviour
     {
         if (GameManager.Instance.isDie) { return; }
 
+        SoundManager.Instance.PlaySound("Shot");
         for (int i = 0; i < patterns[patternIndex].bulletPositions.Length; i++)
         {
             if (i % 2 == 0)
             {
                 GameObject bullet = Instantiate(patterns[patternIndex].bulletPrefab, patterns[patternIndex].bulletPositions[i]);
-                bullet.transform.Rotate(0, 0, 90);
                 bullet.transform.position += Vector3.up * ((patterns[patternIndex].curPatternCount - 1) * 1f);
                 Rigidbody2D rigid = bullet.GetComponent<Rigidbody2D>();
 
@@ -124,12 +125,25 @@ public class PatternManager : MonoBehaviour
     {
         if (GameManager.Instance.isDie) { return; }
 
+        SoundManager.Instance.PlaySound("Meteor");
         int ranIndex = Random.Range(0, patterns[patternIndex].bulletPositions.Length);
         Meteor meteor = Instantiate(patterns[patternIndex].bulletPrefab, patterns[patternIndex].bulletPositions[ranIndex].position, Quaternion.identity).GetComponent<Meteor>();
         Rigidbody2D rigid = meteor.gameObject.GetComponent<Rigidbody2D>();
         meteor.isRight = ranIndex <= 15;
 
-        float dir = meteor.isRight ? 1f : -1f;
+        float dir;
+        if (meteor.isRight)
+        {
+            meteor.transform.Rotate(0, 0, 135);
+            dir = 1f;
+        }
+
+        else
+        {
+            meteor.transform.Rotate(0, 0, 225);
+            dir = -1f;
+        }
+        
         rigid.AddForce(Vector2.right * dir * bulletSpeed, ForceMode2D.Impulse);
         rigid.AddForce(Vector2.down * bulletSpeed, ForceMode2D.Impulse);
 

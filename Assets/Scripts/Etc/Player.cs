@@ -15,10 +15,12 @@ public class Player : MonoBehaviour
     [Header("Other")]
     public GameObject barrierObj;
     public GameObject diePaticle;
+    [SerializeField] private SpriteRenderer spriteRenderer;
 
     private void Awake()
     {
         speed = 10;
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
@@ -55,13 +57,40 @@ public class Player : MonoBehaviour
 
         if (collision.gameObject.tag == "Bullet")
         {
-            Destroy(collision.gameObject);
-
-            if (!isBarrier)
+            if (!GameManager.Instance.isHit && !isBarrier)
             {
-                print("Game Over");
+                OnHit();
             }
+
+            Destroy(collision.gameObject);
         }
+    }
+
+    private void OnHit()
+    {
+        SoundManager.Instance.PlaySound("Hit");
+
+        StopCoroutine(GameManager.Instance.OnHit());
+        StartCoroutine(GameManager.Instance.OnHit());
+
+        StopCoroutine(OnHitAnimation());
+        StartCoroutine(OnHitAnimation());
+    }
+
+    private IEnumerator OnHitAnimation()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            float alpha = (i % 2 == 0) ? 0.1f : 0.5f;
+
+            spriteRenderer.color = new Color(1, 1, 1, alpha);
+        
+            yield return new WaitForSeconds(0.25f);
+        }
+
+        spriteRenderer.color = new Color(1, 1, 1, 1);
+
+        GameManager.Instance.isHit = false;
     }
 
     private void OnTriggerExit2D(Collider2D collision)

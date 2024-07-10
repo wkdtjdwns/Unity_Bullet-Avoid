@@ -38,11 +38,14 @@ public class Meteor : MonoBehaviour
 
     private IEnumerator Shot()
     {
+        if (GameManager.Instance.isDie) { StopAllCoroutines(); }
+
         int roundNumA = 50;
         int roundNumB = 37;
 
         int roundNum = curPatternCount % 2 == 0 ? roundNumA : roundNumB;
 
+        SoundManager.Instance.PlaySound("Shot");
         for (int i = 0; i < 50; i++)
         {
             Bullet bullet = Instantiate(bulletPrefab, bulletPosition.position, Quaternion.identity).GetComponent<Bullet>();
