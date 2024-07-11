@@ -9,7 +9,7 @@ public class Bullet : MonoBehaviour
 
     private void Update()
     {
-        if (isRotate) { transform.Rotate(Vector3.forward * 10); }
+        if (isRotate) { transform.Rotate(Vector3.forward * 50); }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

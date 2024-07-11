@@ -57,11 +57,13 @@ public class Player : MonoBehaviour
 
         if (collision.gameObject.tag == "Bullet")
         {
-            if (!GameManager.Instance.isHit && !isBarrier)
+            if (GameManager.Instance.isHit || isBarrier)
             {
-                OnHit();
+                Destroy(collision.gameObject);
+                return;
             }
 
+            OnHit();
             Destroy(collision.gameObject);
         }
     }

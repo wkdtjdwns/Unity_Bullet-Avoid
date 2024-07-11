@@ -35,6 +35,7 @@ public class Skill : MonoBehaviour
             case "Destroy": DestroySkill(); break;
             case "Run": RunSkill(); break;
             case "Barrier": BarrierSkill(); break;
+            case "Heal": HealSkill(); break;
         }
 
         StartCoroutine(OnCooldownTime(maxCooldownTime));
@@ -149,6 +150,12 @@ public class Skill : MonoBehaviour
         }
 
         player.isBarrier = false;
+    }
+
+    private void HealSkill()
+    {
+        SoundManager.Instance.PlaySound("Heal");
+        GameManager.Instance.UpdateLifeIcon(++GameManager.Instance.life);
     }
 
     private IEnumerator OnCooldownTime(float maxCooldownTime)

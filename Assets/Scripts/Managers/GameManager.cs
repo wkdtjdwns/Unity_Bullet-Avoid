@@ -17,10 +17,20 @@ public class GameManager : MonoBehaviour
     public bool isDie;
     public bool isOption;
 
+    [Header("Save Data")]
+    public string rankName1;
+    public float rankScore1;
+
+    public string rankName2;
+    public float rankScore2;
+
+    public string rankName3;
+    public float rankScore3;
+
     [Header("Other")]
     [SerializeField] private SpriteRenderer background;
     [SerializeField] private GameObject optionObj;
-    [SerializeField] private GameObject resultObj;
+    [SerializeField] private GameObject rankingObj;
 
     private void Awake()
     {
@@ -73,9 +83,6 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
 
             background.color = new Color(1, 1, 1);
-
-            yield return new WaitForSeconds(0.25f);
-            isHit = false;
         }
 
         else
@@ -110,7 +117,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void UpdateLifeIcon(int life)
+    public void UpdateLifeIcon(int life)
     {
         for (int i = maxLife - 1; i >= 0; i--)
         {
@@ -181,20 +188,25 @@ public class GameManager : MonoBehaviour
         spriteRenderer.color = new Color(0, 0, 0, 0);
         player.diePaticle.SetActive(true);
 
-        Invoke("ShowResult", 2f);
+        Invoke("ShowRanking", 2f);
     }
 
-    private void ShowResult()
+    private void ShowRanking()
     {
-        SoundManager.Instance.PlaySound("Result");
-        resultObj.SetActive(true);
+        SoundManager.Instance.PlaySound("Ranking");
+        rankingObj.SetActive(true);
     }
 
     private void CheatKey()
     {
-        if (Input.GetKeyDown(KeyCode.F2))
+        if (Input.GetKeyDown(KeyCode.F1))
         {
             StartCoroutine(OnHit());
+        }
+
+        if (Input.GetKeyDown(KeyCode.F2))
+        {
+            DataManager.Instance.Reset();
         }
     }
 }

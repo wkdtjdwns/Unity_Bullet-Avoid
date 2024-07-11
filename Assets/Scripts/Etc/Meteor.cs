@@ -22,6 +22,7 @@ public class Meteor : MonoBehaviour
     private void Update()
     {
         bulletPosition.transform.position = this.transform.position;
+        if (GameManager.Instance.isDie) { StopAllCoroutines(); }
     }
 
     private void OnEnable()
@@ -38,8 +39,6 @@ public class Meteor : MonoBehaviour
 
     private IEnumerator Shot()
     {
-        if (GameManager.Instance.isDie) { StopAllCoroutines(); }
-
         int roundNumA = 50;
         int roundNumB = 37;
 

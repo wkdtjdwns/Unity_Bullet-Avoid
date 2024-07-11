@@ -55,8 +55,9 @@ public class SoundManager : MonoBehaviour
             case "Hit": index = 2; break;
             case "Die": index = 3; break;
             case "Dying": index = 4; break;
-            case "Result": index = 5; break;
-            case "Button": index = 6; break;
+            case "Ranking": index = 5; break;
+            case "Heal": index = 6; break;
+            case "Button": index = 7; break;
         }
 
         sfxPlayer.clip = audioClips[index];
